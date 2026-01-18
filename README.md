@@ -1,5 +1,6 @@
 # Tomodachi
 Tomodachi is a handheld companion inspired by Tamagotchi with Wi-Fi. Your Tomodachi will allow you to set alarms and manage your calendar, but you must also take care of it.
+I'm building this project because I've never had my own Tamagotchi, and making my own is better than buying one.
 
 <img width="1920" height="1080" alt="Render" src="https://github.com/user-attachments/assets/ef3ef80c-d63d-4859-94cd-8193f3fd2a01" />
 
