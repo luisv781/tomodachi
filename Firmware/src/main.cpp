@@ -2,10 +2,9 @@
 #include "Adafruit_SH110X.h"
 
 #define LBUTTON 0
-#define MBUTTON 1
+#define MBUTTON 4 // Will be 1 after done testing
 #define RBUTTON 2
 
-// Character Sprite
 const unsigned char faceSprite [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -137,9 +136,16 @@ const unsigned char faceSprite [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-uint8_t level = 1;
-uint8_t stage = 1;
+unsigned long lButtonPressed = 0;
+unsigned long mButtonPressed = 0;
+unsigned long rButtonPressed = 0;
+bool lButtonState = false;
+bool mButtonState = false;
+bool rButtonState = false;
+uint8_t stage = 0;
 uint8_t selection = 0;
+
+uint8_t level = 1;
 
 Adafruit_SH1107 display = Adafruit_SH1107(128, 128, &Wire);
 
@@ -159,7 +165,48 @@ void setup() {
 
 }
 
+uint8_t buttonPressed() {
+
+	if (digitalRead(LBUTTON) == HIGH)
+		lButtonState = false;
+	if (digitalRead(MBUTTON) == HIGH)
+		mButtonState = false;
+	if (digitalRead(RBUTTON) == HIGH)
+		rButtonState = false;
+
+	if (digitalRead(LBUTTON) == LOW && millis() - lButtonPressed > 100 && lButtonState == false) { // Left button to return back
+		mButtonState = false;
+		rButtonState = false;
+		lButtonState = true;
+		lButtonPressed = millis();
+
+		return 1;
+	}
+	if (digitalRead(MBUTTON) == LOW && millis() - mButtonPressed > 100 && mButtonState == false) { // Middle button to select an action
+		lButtonState = false;
+		rButtonState = false;
+		mButtonState = true;
+		mButtonPressed = millis();
+
+		return 2;
+	}
+	if (digitalRead(RBUTTON) == LOW && millis() - rButtonPressed > 100 && rButtonState == false) {
+		// Right button to scroll
+		lButtonState = false;
+		mButtonState = false;
+		rButtonState = true;
+		rButtonPressed = millis();
+
+		return 3;
+	}
+	return 0;
+
+}
+
 void loop() {
+
+	display.clearDisplay();
+
 	switch (stage) {
 		case 1:
 			display.setTextColor(SH110X_WHITE);
@@ -168,23 +215,29 @@ void loop() {
 			display.drawTriangle(12, 16 + (selection * 24),
 				20, 24 + (selection * 24), 12, 32 + (selection * 24), SH110X_WHITE);
 
+			// More selections will be added later
 			display.setCursor(28, 16);
 			display.print("Feed");
 			display.setCursor(28, 40);
 			display.print("Play");
 
-			// More selections will be added later
-			if (digitalRead(LBUTTON) == LOW) { // Left button to return back
-				stage = 0;
-			} else if (digitalRead(MBUTTON) == LOW) { // Middle button to select an action
-				level++;
-				stage = 0;
-			} else if (digitalRead(RBUTTON) == LOW) { // Right button to scroll
-				if (selection < 1) {
-					selection++;
-				} else {
-					selection = 0;
-				}
+			switch (buttonPressed()) {
+				case 1:
+					stage = 0;
+					break;
+
+				case 2:
+					level++;
+					stage = 0;
+					break;
+
+				case 3:
+					if (selection < 1) {
+						selection++;
+					} else {
+						selection = 0;
+					}
+					break;
 			}
 
 			break;
@@ -198,7 +251,7 @@ void loop() {
 			display.setCursor(30, 6);
 			display.print(level);
 
-			if (digitalRead(LBUTTON) == LOW) {
+			if (buttonPressed() == 1) {
 				stage = 1;
 			}
 
@@ -207,6 +260,6 @@ void loop() {
 
 
 	display.display();
-	delay(500);
+	delay(50);
 
 }
