@@ -13,7 +13,7 @@ I'm building this project because I've never had my own Tamagotchi, and making m
 - 1.5-inch 128x128 SH1107 Screen
 - 3x Tactile Push Buttons
 - 1x 4 Position Female Header
-- 4x M3x5x4 Heatset Inserts
-- 4x M3x12 Screws
+- 4x M2x3x4 Heatset Inserts
+- 4x M2x12 Screws
 - 4x M2.2x6 Screws
 - 1x Case (2 3D-Printed Parts)
